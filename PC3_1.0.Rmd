@@ -1,0 +1,23 @@
+---
+title: "MUCHO RUIDO , POCAS NUECES"
+author: "paqueteRos , grupo 1"
+output: 
+  ioslides_presentation:
+    includes:
+    logo: descargar.png
+    transition: faster
+    smaller: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+![Imagen 1](imagen%201.png)
+
+Aqui resumen o apoyo de linea
+
+
+# Muchas Gracias
