@@ -1,0 +1,24 @@
+---
+title: "Como mentir con estadística"
+subtitle : "Capitulo 4 : Mucho ruido y pocas nueces"
+author: "Grupo 1:paquete®os"
+output: 
+  ioslides_presentation:
+    includes:
+    logo: descargar.png
+    transition: faster
+    smaller: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+![Imagen 1](imagen%201.png)
+
+Aqui resumen o apoyo de linea
+
+
+# Muchas Gracias
