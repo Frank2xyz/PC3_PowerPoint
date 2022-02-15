@@ -1,7 +1,7 @@
 ---
 title: "Como mentir con estadística"
 subtitle : "Capitulo 4 : Mucho ruido y pocas nueces"
-author: "Grupo 1:paquete®os"
+author: "Grupo 1:paquete®os UNALM "
 output: 
   ioslides_presentation:
     includes:
