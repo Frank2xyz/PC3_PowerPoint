@@ -1,24 +1,220 @@
 ---
 title: "Como mentir con estadística"
-subtitle : "Capitulo 4 : Mucho ruido y pocas nueces"
-author: "Grupo 1:paquete®os UNALM "
-output: 
+author: "Grupo 1:paquete®os"
+subtitle: 'Capitulo 4 : Mucho ruido y pocas nueces'
+output:
   ioslides_presentation:
-    includes:
+    includes: null
     logo: descargar.png
     transition: faster
-    smaller: true
+    smaller: yes
+  logo: default
+  beamer_presentation: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = F,  warning = F, message = F)
+   library(tm)
+library(tidyverse)
+library(pdftools)
+library(remotes)
+library(extrafont)
+library(tidytext)
+library(readxl)
+library(ggalt)
 ```
 
-## R Markdown
+## Textmining
 
-![Imagen 1](imagen%201.png)
-
-Aqui resumen o apoyo de linea
+```{r}
 
 
-# Muchas Gracias
+theme_propio2 <- function(){
+  theme(
+    plot.title        = element_text(size = 20,
+                                     color = "black",
+                                     hjust = 0, 
+                                     vjust = 0.1,
+                                     face = "bold"), 
+    plot.subtitle     = element_text(color = "black",
+                                     size = 11),
+    
+    plot.caption      = element_text(face = "bold", color = "black"),
+    
+    axis.title.x      = element_text(size = 10, color = "black", face = "bold"),
+    axis.text.x       = element_text(color = "black", size = 8, face = "bold"),
+    axis.title.y      = element_text(size = 10, color = "black", face = "bold" ),
+    axis.text.y       = element_text(color = "black", size = 8, face = "bold"),
+    
+    axis.ticks        = element_line(color = "white"),
+    
+    panel.border      = element_rect(color = "#ffffff", fill = NA, size = 1,linetype = 1),
+    
+    panel.background  = element_rect(fill = "#595757"),
+    
+    plot.background   = element_rect(fill = "#dbdbdb"),
+    
+    panel.grid        = element_line(color = "#211e1e", linetype = 1, size = 0.1),
+    
+    legend.background = element_rect(color = "black", fill = "#D5D8DC", linetype = 0.5),
+    legend.title      = element_text(face = "bold", color = "black", size = 11),
+    legend.text       = element_text(face = "bold", color = "black", size = 9),
+    legend.position   = "right"
+  )
+}
+
+d_90_af =  pdf_text("como-mentir-con-estadisticas.pdf")                 
+
+
+d_90_af <- d_90_af[c(14,15)]
+
+d_90_af = paste(d_90_af, collapse = " ")
+
+d_90_af =  str_remove_all(d_90_af, "CÓMO MENTIR CON ESTADÍSTICAS")
+d_90_af =  str_remove_all(d_90_af, "DARRELL HUFF")
+d_90_af =  str_remove_all(d_90_af, "CÓMO MENTIR")
+
+
+# Buscando los números de página 
+
+
+d_90_af = str_replace_all(d_90_af, "[:blank:]{2,}", " ")
+
+
+# Símbolos de puntuación 
+
+
+d_90_af = str_remove_all(d_90_af, "[:punct:]")
+
+
+# Buscando los números 
+
+
+d_90_af = str_remove_all(d_90_af, "[:digit:]")
+
+
+# Guardando como un archivo de texto plano 
+
+write_lines(d_90_af, "analizar")
+
+
+
+data = scan("analizar",
+                 encoding = "UTF-8", what = "char",
+                 sep = "\n")
+
+
+data = tibble(data) |> 
+  unnest_tokens(Token, data) |>
+  mutate(Token= removeNumbers(Token))
+
+# LEYENDO STOPWORDS -------------------------------------------------------
+
+#stopwords 1
+stopwords_es_1 = read_excel("CustomStopWords.xlsx")
+
+names(stopwords_es_1) <- c("Token","Fuente")
+
+
+#stopwords 2
+
+stopwords_es_2 = tibble(Token= c(""), Fuente="Mis StopWords")  #agregar palabras para no ser analizadas 
+
+
+#Uniendo ambos stopwords
+
+stopwords_es   <- rbind(stopwords_es_1, stopwords_es_2)
+stopwords_es   <- stopwords_es[!duplicated(stopwords_es$Token),]
+
+data = data |> anti_join(stopwords_es_1)     
+
+dataf = data |> count(Token, sort = TRUE)   # contar y ordenar 
+
+#Gràfica
+dataf |> top_n(12) |> ggplot(aes(x=reorder(Token,n) , y = n , col=Token)) + geom_lollipop()+
+  geom_text(aes(label=n , hjust=-0.25)) + coord_flip()+theme_propio2()+theme(legend.position = "none")
+```
+
+## Mucho Ruido y pocas nueces
+
+![imagen1](imagen_1.jpg){width="580"} ![imagen2](imagen_2.png){width="189"} 
+
+¿ A qué se refiere ? ¿ Qué nos quiere decir ?
+
+# Ejemplos del texto
+
+## Ejemplo 1
+
+<center>
+
+![](test.png){width="586"}
+
+Test de inteligencia\
+"Pretenden ser una muestra del intelecto. Al igual que cualquier otro producto que tenga su origen en la técnica de muestreo, el C.I. es una cifra que presenta un error estadístico"
+
+<center>
+
+## Ejemplo 2
+
+<center>
+
+![](maiz.png){width="596"}
+
+Calidad del maíz\
+"Al recoger al azar el maíz de un campo y examinar, se puede formar una idea bastante buena de como era el campo , esta información se usa para comparar este campo con otros"
+
+<center>
+
+## Ejemplo 3
+
+<center>
+
+![](Tabaco.png){width="609"}
+
+Cantida de nicotina\
+"Pero alguien se fijó en una cosa,en las listas figuraba al final la marca Old Gold. Salieron en las revistas que de todos los cigarrillos examinados por la gran revista el Old Gold era el que contenía una menor cantidad de sustancias indeseables"
+
+<center>
+
+## Conclusiones
+
+<center>
+
+![](conclusion.jpg){width="281"}
+
+<center>
+
+-Se llega a la conclusión de que el único modo de considerar los C.I., así como otros muchos resultados derivados de una muestra, es por clases
+
+-Una medida tomada estadísticamente es incorrecto mencionar un valor discreto , lo correcto sería mencionar el valor más una medida de incertidumbre.
+
+# Casos en la vida real
+
+## Caso 1
+
+<center>
+
+![](caso_1.png){width="643"}
+
+<center>
+
+[https://peru21.pe/peru/coronavirus-en-peru-546-de-casos-positivos-en-huancavelica-son-mujeres-nnpp-noticia/](https://peru21.pe/peru/coronavirus-en-peru-546-de-casos-positivos-en-huancavelica-son-mujeres-nnpp-noticia/)
+
+## Caso 2
+
+<center>
+![](ipsos.jpeg){width="600"} 
+<center>
+
+[https://factual.afp.com/la-universidad-catolica-no-ha-divulgado-ninguna-encuesta-sobre-las-elecciones-en-peru](https://factual.afp.com/la-universidad-catolica-no-ha-divulgado-ninguna-encuesta-sobre-las-elecciones-en-peru)
+
+## 
+
+<center>
+![](onpe.jpeg){width="600"}
+<center>
+[https://resultadoshistorico.onpe.gob.pe/EG2021/](https://resultadoshistorico.onpe.gob.pe/EG2021/)
+
+# Muchas gracias
+
+![](imagen_3.jpg){width="580"}
